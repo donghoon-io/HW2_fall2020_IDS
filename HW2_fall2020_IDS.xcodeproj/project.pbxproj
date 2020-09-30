@@ -7,9 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		F1E0E5762520E6E5007C93EC /* Solitaire.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F1E0E5752520E6E5007C93EC /* Solitaire.cpp */; };
-		F1E0E5832520E730007C93EC /* CardPile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F1E0E5822520E730007C93EC /* CardPile.cpp */; };
-		F1E0E5862520E7FD007C93EC /* Card.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F1E0E5852520E7FD007C93EC /* Card.cpp */; };
+		F1A31EEB2524764B005F13A4 /* Solitaire.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F1A31EE92524764B005F13A4 /* Solitaire.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -25,10 +23,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		F1A31EE92524764B005F13A4 /* Solitaire.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Solitaire.cpp; sourceTree = "<group>"; };
 		F1E0E5722520E6E5007C93EC /* HW2_fall2020_IDS */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = HW2_fall2020_IDS; sourceTree = BUILT_PRODUCTS_DIR; };
-		F1E0E5752520E6E5007C93EC /* Solitaire.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Solitaire.cpp; sourceTree = "<group>"; };
-		F1E0E5822520E730007C93EC /* CardPile.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = CardPile.cpp; sourceTree = "<group>"; };
-		F1E0E5852520E7FD007C93EC /* Card.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Card.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -61,9 +57,7 @@
 		F1E0E5742520E6E5007C93EC /* HW2_fall2020_IDS */ = {
 			isa = PBXGroup;
 			children = (
-				F1E0E5752520E6E5007C93EC /* Solitaire.cpp */,
-				F1E0E5822520E730007C93EC /* CardPile.cpp */,
-				F1E0E5852520E7FD007C93EC /* Card.cpp */,
+				F1A31EE92524764B005F13A4 /* Solitaire.cpp */,
 			);
 			path = HW2_fall2020_IDS;
 			sourceTree = "<group>";
@@ -124,9 +118,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F1E0E5862520E7FD007C93EC /* Card.cpp in Sources */,
-				F1E0E5762520E6E5007C93EC /* Solitaire.cpp in Sources */,
-				F1E0E5832520E730007C93EC /* CardPile.cpp in Sources */,
+				F1A31EEB2524764B005F13A4 /* Solitaire.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
