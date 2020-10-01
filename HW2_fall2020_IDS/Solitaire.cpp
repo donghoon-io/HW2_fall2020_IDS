@@ -34,7 +34,15 @@ public:
     int getNumber() { return number; }
     int getType() { return type; }
     void revealCard() { isHidden = false; }
+    bool isRevealed() { return !isHidden; }
+    bool isBlack() { return (type == 0 || type == 1); }
 };
+
+
+
+
+
+
 
 class CardPile {
 private:
@@ -49,6 +57,9 @@ public:
     };
     ~CardPile() {};
     
+    bool isEmpty() { return (top == -1); }
+    Card* getArray() { return arr; }
+    int getCardNum() { return top + 1; }
     void push(Card card) {
         if (capacity == top+1) {
             doubleSize1D();
@@ -57,14 +68,11 @@ public:
         arr[++top] = card;
     }
     void pop() {
-        if (isEmpty()) throw "Bag is empty";
+        if (isEmpty()) throw "Stack is empty";
         arr[top--].~Card();
     }
-    bool isEmpty() {
-        return (top == -1);
-    }
-    Card* getArray() {
-        return arr;
+    Card getTopCard() {
+        return arr[top];
     }
     void doubleSize1D() {
         if (capacity == 0) {
@@ -79,6 +87,26 @@ public:
         }
         delete [] arr;
         arr = temp;
+    }
+    std::tuple<Card*, int> checkConsecutives() {
+        Card* temp = new Card [13];
+        int topIdx = top;
+        int addIdx = 0;
+        while (arr[topIdx].isRevealed() && topIdx > -1) {
+            if (addIdx == 0) temp[addIdx++] = arr[topIdx--];
+            else if (arr[topIdx+1].isBlack() != arr[topIdx].isBlack() && arr[topIdx].getNumber() - arr[topIdx+1].getNumber() == 1) temp[addIdx++] = arr[topIdx--];
+            else break;
+        }
+        return std::make_tuple(temp, addIdx);
+    }
+    void revealLast() {
+        this->arr[top].revealCard();
+    }
+    void removeCards(int number) {
+        for (int i=0; i<number; i++) {
+            this->pop();
+        }
+        this->revealLast();
     }
 };
 
@@ -98,7 +126,7 @@ private:
     
 public:
     Solitaire() {};
-    ~Solitaire() {delete [] stock;};
+    ~Solitaire() {};
     Card* generate52Cards() {
         Card* arr = new Card [52];
         int idx = 0;
@@ -127,37 +155,73 @@ public:
         Card *a;
         a = generate52Cards();
         for (int i=0; i<52; i++) {
-            if (i < 1) play1->push(a[i]);
+            if (i == 0 || i == 2 || i == 5 || i == 9 || i == 14 || i == 20 || i == 27) a[i].revealCard();
+            if (i<1) play1->push(a[i]);
             else if (i<3) play2->push(a[i]);
             else if (i<6) play3->push(a[i]);
             else if (i<10) play4->push(a[i]);
             else if (i<15) play5->push(a[i]);
             else if (i<21) play6->push(a[i]);
             else if (i<28) play7->push(a[i]);
-            else stock->push(a[i-28]);
+            else stock->push(a[i]);
         }
+        delete [] a;
         printPiles();
     }
-    void printPiles() {
-        printPile(play1->getArray(), 1);
-        printPile(play2->getArray(), 2);
-        printPile(play3->getArray(), 3);
-        printPile(play4->getArray(), 4);
-        printPile(play5->getArray(), 5);
-        printPile(play6->getArray(), 6);
-        printPile(play7->getArray(), 7);
-        printPile(stock->getArray(), 24);
+    bool checkMobility(CardPile* from, CardPile* to, int cardNum) {
+        return (from->getArray()[from->getCardNum()-cardNum].getNumber() + 1 == to->getTopCard().getNumber() && from->getArray()[from->getCardNum()-cardNum].getType() != to->getTopCard().getType());
     }
-    void printPile(Card arr[], int n) {
-        for (int i = 0; i < n; i++) {
-            if (arr[i].getType() == 0) cout << "Spade " << arr[i].getNumber() << " ";
-            else if (arr[i].getType() == 1) cout << "Clova " << arr[i].getNumber() << " ";
-            else if (arr[i].getType() == 2) cout << "Heart " << arr[i].getNumber() << " ";
-            else cout << "Diamond " << arr[i].getNumber() << " ";
+    void move(CardPile* from, CardPile* to, int cardNum) {
+        for (int i = from->getCardNum()-cardNum; i < from->getCardNum(); i++) {
+            to->push(from->getArray()[i]);
         }
-        cout << "\n";
+        from->removeCards(cardNum);
+    }
+    void printPiles() {
+        printPile(play1);
+        printPile(play2);
+        printPile(play3);
+        printPile(play4);
+        printPile(play5);
+        printPile(play6);
+        printPile(play7);
+        printPile(stock);
+        printConsecutives();
+    }
+    void printConsecutives() {
+        CardPile* temp = new CardPile();
+        temp->push(Card(5, 1, false));
+        temp->push(Card(4, 3, false));
+        temp->push(Card(3, 1, false));
+        temp->push(Card(2, 3, false));
+        temp->push(Card(1, 0, false));
+        int tempNum = std::get<1>(temp->checkConsecutives());
+        cout << tempNum << endl;
+    }
+    void printPile(CardPile* pile) {
+        for (int i = 0; i < pile->getCardNum(); i++) {
+            if (pile->getArray()[i].getType() == 0) cout << "♠" << pile->getArray()[i].getNumber();
+            else if (pile->getArray()[i].getType() == 1) cout << "♣" << pile->getArray()[i].getNumber();
+            else if (pile->getArray()[i].getType() == 2) cout << "♡" << pile->getArray()[i].getNumber();
+            else cout << "◇" << pile->getArray()[i].getNumber();
+            if (pile->getArray()[i].isRevealed()) {
+                cout << "R ";
+            } else {
+                cout << " ";
+            }
+        }
+        cout << endl;
     }
 };
+
+
+
+
+
+
+
+
+
 
 
 int main(int argc, const char * argv[]) {
