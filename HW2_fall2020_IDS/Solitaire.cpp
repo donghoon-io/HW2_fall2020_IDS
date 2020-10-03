@@ -2,7 +2,7 @@
 //  Solitaire.cpp
 //  HW2_fall2020_IDS
 //
-//  Created by HoonieMac on 2020/09/30.
+//  Created by DONGHOON SHIN (elecle iOS dev) on 2020/09/30.
 //
 
 #include <stdio.h>
@@ -11,8 +11,6 @@
 #include <iostream>
 #include <fstream>
 using namespace std;
-
-
 
 class Card {
 private:
@@ -40,12 +38,6 @@ public:
     bool isRevealed() { return !isHidden; } // get if the card has been open
     bool isBlack() { return (type == 0 || type == 1); } // check if the card is black or red
 };
-
-
-
-
-
-
 
 class CardPile {
 private:
@@ -130,10 +122,6 @@ public:
         this->revealLast();
     }
 };
-
-
-
-
 
 class Solitaire {
 private:
