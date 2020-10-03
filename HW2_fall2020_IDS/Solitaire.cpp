@@ -124,9 +124,6 @@ private:
     CardPile *output1 = new CardPile(), *output2 = new CardPile(), *output3 = new CardPile(), *output4 = new CardPile();
     CardPile *outputs[4] = {output1, output2, output3, output4};
     
-    int temp1[4] = {130,230,410,340};
-    int temp2[4] = {120,840,20,310};
-    
     bool stockAvailable = true;
     int point = -52;
     bool isDone = false;
@@ -249,24 +246,28 @@ public:
         return isDone;
     }
     void printPiles() {
+        cout << "===========================" << endl << endl << "[Initial card sets]" << endl << endl;
         for (int i=0; i<7; i++) {
-            cout << "Play " << i << ": ";
+            cout << "Play " << i+1 << ": ";
             printPile(plays[i]);
         }
         for (int i=0; i<4; i++) {
-            cout << "Output " << i << ": ";
+            cout << "Output " << i+1 << ": ";
             printPile(outputs[i]);
         }
         cout << "Stock: ";
         printPile(stock);
         cout << "Waste: ";
         printPile(waste);
-        cout << endl << "===========================" << endl << endl;
+        cout << endl << "===========================" << endl << endl << "[Game sequences]" << endl << endl;
     }
     
     bool checkFromStockPile() {
         if (checkMobilityToOutput(stock)) {
             int type = stock->getTopCard().getType();
+            
+            printCard(stock->getTopCard());
+            cout << " from stock to output #" << type+1 << endl;
             move(stock, outputs[type], 1);
             addPoint();
             
@@ -274,6 +275,9 @@ public:
         }
         for (int i=0; i<7; i++) {
             if (std::get<0>(checkMobility(stock, plays[i], true))) {
+                
+                printCard(stock->getTopCard());
+                cout << " from stock to playing #" << i+1 << endl;
                 move(stock, plays[i], 1);
                 return true;
             }
@@ -284,12 +288,18 @@ public:
         if (waste->isEmpty()) return false;
         if (checkMobilityToOutput(waste)) {
             int type = waste->getTopCard().getType();
+            
+            printCard(waste->getTopCard());
+            cout << " from waste to output #" << type+1 << endl;
             move(waste, outputs[type], 1);
             addPoint();
             return true;
         }
         for (int i=0; i<7; i++) {
             if (std::get<0>(checkMobility(waste, plays[i], true))) {
+                
+                printCard(waste->getTopCard());
+                cout << " from waste to playing #" << i+1 << endl;
                 move(waste, plays[i], 1);
                 return true;
             }
@@ -303,25 +313,24 @@ public:
         for (int i=0; i<7; i++) {
             if (checkMobilityToOutput(plays[i])) {
                 int type = plays[i]->getTopCard().getType();
+                
+                printCard(plays[i]->getTopCard());
+                cout << " from playing #" << i+1 << " to output #" << type+1 << endl;
                 move(plays[i], outputs[type], 1);
                 addPoint();
                 return true;
             }
             for (int j=0; j<7; j++) {
                 if (std::get<0>(checkMobility(plays[i], plays[j], false)) && (i != j)) {
-                    if (plays[j]->getCardNum() != 0 &&
+                    if (!(plays[j]->getCardNum() != 0 &&
                         std::get<0>(plays[i]->checkConsecutives())[std::get<1>(plays[i]->checkConsecutives())-1].getNumber() == std::get<0>(plays[j]->checkConsecutives())[std::get<1>(plays[j]->checkConsecutives())-1].getNumber() &&
-                        std::get<0>(plays[i]->checkConsecutives())[std::get<1>(plays[i]->checkConsecutives())-1].isBlack() == std::get<0>(plays[j]->checkConsecutives())[std::get<1>(plays[j]->checkConsecutives())-1].isBlack()) {
-                    } else {
-                        temp1[0] = temp2[0];
-                        temp1[1] = temp2[1];
-                        temp1[2] = temp2[2];
-                        temp1[3] = temp2[3];
-                        temp2[0] = plays[i]->getCardNum();
-                        temp2[1] = i;
-                        temp2[2] = plays[j]->getCardNum();
-                        temp2[3] = j;
+                        std::get<0>(plays[i]->checkConsecutives())[std::get<1>(plays[i]->checkConsecutives())-1].isBlack() == std::get<0>(plays[j]->checkConsecutives())[std::get<1>(plays[j]->checkConsecutives())-1].isBlack())) {
+                        for (int a = plays[i]->getCardNum()-1; a >= plays[i]->getCardNum()-std::get<1>(checkMobility(plays[i], plays[j], false)); a--) {
+                            printCard(plays[i]->getArray()[a]);
+                            cout << " ";
+                        }
                         
+                        cout << "from playing #" << i+1 << " to playing #" << j+1 << endl;
                         move(plays[i], plays[j], std::get<1>(checkMobility(plays[i], plays[j], false)));
                         
                         return true;
@@ -338,44 +347,43 @@ public:
         } else {
             if (stock->getCardNum() == 0) {
                 stockAvailable = false;
-                cout << "Point: " << getPoint() << endl;
+                cout << endl << "===========================" << endl << endl << "[End of game]" << endl << endl << "Point: " << getPoint() << endl << endl << "===========================" << endl;
                 isDone = true;
             } else {
+                printCard(stock->getTopCard());
+                cout << " from stock to waste" << endl;
                 move(stock, waste, 1);
             }
         }
     }
     
+    void printCard(Card card) {
+        if (card.getType() == 0) cout << "♠" << card.getNumber();
+        else if (card.getType() == 1) cout << "♣" << card.getNumber();
+        else if (card.getType() == 2) cout << "♡" << card.getNumber();
+        else cout << "◇" << card.getNumber();
+        if (card.isRevealed()) {
+            cout << "R";
+        } else {
+            cout << "";
+        }
+    }
+    
     void printPile(CardPile* pile) {
         for (int i = 0; i < pile->getCardNum(); i++) {
-            if (pile->getArray()[i].getType() == 0) cout << "♠" << pile->getArray()[i].getNumber();
-            else if (pile->getArray()[i].getType() == 1) cout << "♣" << pile->getArray()[i].getNumber();
-            else if (pile->getArray()[i].getType() == 2) cout << "♡" << pile->getArray()[i].getNumber();
-            else cout << "◇" << pile->getArray()[i].getNumber();
-            if (pile->getArray()[i].isRevealed()) {
-                cout << "R ";
-            } else {
-                cout << " ";
-            }
+            printCard(pile->getArray()[i]);
+            cout << " ";
         }
         cout << endl;
     }
 };
 
-
-
-
-
-
-
-
-
-
-
 int main(int argc, const char * argv[]) {
     
     Solitaire solitaire = Solitaire();
     solitaire.initialize();
+    
+    solitaire.printPiles();
     
     
     while (!solitaire.shouldBeTerminated()) {
