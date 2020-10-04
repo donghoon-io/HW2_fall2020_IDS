@@ -1,21 +1,27 @@
+HW #2
+
+Dept. of Electrical and Computer Engineering
+Donghoon Shin 2016-16578
+
+
+
+
+
 1. Environment
 
 OS: macOS Catalina (10.15.6, 19G2021))
 CPP compiler: GNU++14
 
-Since the IDE I used was Xcode, I attached the whole project
-(including .xcodeproj file) in case you might conveniently
-run the file with Xcode and check.
+You can run Solitaire.cpp to get the result. The result should be
+saved as "result.txt".
 
-Otherwise, you may just open /HW2_fall2020_IDS/Solitaire.cpp
-and run it.
 
 
 
 
 2. How to read the output
 
-Below is a sample output on the console log (of CPP).
+Below is a sample output that should be written on "result.txt".
 As you may see, [Initial card sets] are shown first,
 which is followed by [Game sequences] (movements) and
 [End of game] (that also shows the point.)

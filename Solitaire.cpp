@@ -125,9 +125,6 @@ public:
 
 class Solitaire {
 private:
-    
-    int gameNum = 1; // Order of game (1, 2)
-    
     // below are defined stock, waste, plays, and outputs
     CardPile *stock = new CardPile(), *waste = new CardPile();
     CardPile *play1 = new CardPile(), *play2 = new CardPile(), *play3 = new CardPile(), *play4 = new CardPile(), *play5 = new CardPile(), *play6 = new CardPile(), *play7 = new CardPile();
@@ -139,7 +136,7 @@ private:
     bool isDone = false; // check if the game cannot proceed anymore
 public:
     Solitaire() {}; // constructor
-    ~Solitaire() { }; // destructor
+    ~Solitaire() {}; // destructor
     
     //function for generating an initial card sets
     Card* generate52Cards() {
@@ -163,19 +160,16 @@ public:
     
     // shuffle card order using srand
     void shuffle(Card card[], int cardNum) {
-        srand((unsigned int) time(NULL)+gameNum*100); // seeding random number without being the same for each game #
+        srand(time(NULL));
         
         for (int i = cardNum-1; i > 0; i--) {
             int j = rand() % (i + 1);
-            swapCard(&card[i], &card[j]); // swapping cards randomly with the random seeds assigned
+            swapCard(&card[i], &card[j]);
         }
     }
     
     // initialize the game
-    void initialize(int order) {
-        
-        gameNum = order; // set game #
-        
+    void initialize() {
         Card *a;
         a = generate52Cards(); //generate cards
         
@@ -271,7 +265,7 @@ public:
     
     // a function to print all the piles
     void printPiles() {
-        cout << "Game " << gameNum << endl << endl <<"===========================" << endl << endl << "[Initial card sets]" << endl << endl;
+        cout << "===========================" << endl << endl << "[Initial card sets]" << endl << endl;
         for (int i=0; i<7; i++) {
             cout << "Playing #" << i+1 << ": ";
             printPile(plays[i]);
@@ -380,7 +374,7 @@ public:
                 cout << " from Stock to Waste" << endl;
                 move(stock, waste, 1);
             } else {
-                cout << endl << "===========================" << endl << endl << "[End of game]" << endl << endl << "Point: " << getPoint() << endl << endl << "===========================" << endl << endl;
+                cout << endl << "===========================" << endl << endl << "[End of game]" << endl << endl << "Point: " << getPoint() << endl << endl << "===========================" << endl;
                 isDone = true;
             }
         }
@@ -416,26 +410,15 @@ int main(int argc, const char * argv[]) {
     streambuf *buffer = cout.rdbuf(); // save previous buffer
     cout.rdbuf(result.rdbuf()); // cout -> result.txt
     
-    // Game #1
-    Solitaire solitaire1 = Solitaire(); // initialize Solitaire class
-    solitaire1.initialize(1); // call initialize() function in the class
-    solitaire1.printPiles(); // first, print the initial card sets
+    Solitaire solitaire = Solitaire(); // initialize Solitaire class
+
     
-    while (!solitaire1.shouldBeTerminated()) {
-        solitaire1.cycle(); // while the solitare should not be terminated so far, keep running the cycle
+    solitaire.initialize(); // call initialize() function in the class
+    solitaire.printPiles(); // first, print the initial card sets
+    
+    while (!solitaire.shouldBeTerminated()) {
+        solitaire.cycle(); // while the solitare should not be terminated so far, keep running the cycle
     }
-    solitaire1.~Solitaire();
-    
-    // Game #2
-    Solitaire solitaire2 = Solitaire(); // initialize Solitaire class
-    solitaire2.initialize(2); // call initialize() function in the class
-    solitaire2.printPiles(); // first, print the initial card sets
-    
-    while (!solitaire2.shouldBeTerminated()) {
-        solitaire2.cycle(); // while the solitare should not be terminated so far, keep running the cycle
-    }
-    solitaire2.~Solitaire();
-    
     
     result.close();
     
