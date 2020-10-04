@@ -437,7 +437,7 @@ int main(int argc, const char * argv[]) {
     solitaire2.~Solitaire();
     
     
-    result.close();
+    result.close(); // close ofstream
     
     return 0;
 }
