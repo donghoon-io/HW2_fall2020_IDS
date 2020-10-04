@@ -406,6 +406,10 @@ public:
 
 int main(int argc, const char * argv[]) {
     
+    ofstream result("result.txt"); // init ofstream for saving result as 'result.txt'
+    streambuf *buffer = cout.rdbuf(); // save previous buffer
+    cout.rdbuf(result.rdbuf()); // cout -> result.txt
+    
     Solitaire solitaire = Solitaire(); // initialize Solitaire class
 
     
@@ -415,6 +419,8 @@ int main(int argc, const char * argv[]) {
     while (!solitaire.shouldBeTerminated()) {
         solitaire.cycle(); // while the solitare should not be terminated so far, keep running the cycle
     }
+    
+    result.close();
     
     return 0;
 }
