@@ -54,7 +54,7 @@ public:
     ~CardPile() {};
     
     bool isEmpty() { return (top == -1); } // get if the pile is empty
-    Card* getArray() { return arr; } // function of getting the array of card
+    Card* getArrayForPrint() { return arr; } // function of getting the array of card. THIS IS ONLY FOR PRINTING CARD DECK
     int getCardNum() { return top + 1; } // return the number (of cards)
     
     // push card
@@ -67,15 +67,24 @@ public:
     }
     
     // pop card
-    void pop() {
+    Card pop() {
         if (isEmpty()) throw "Stack is empty";
+        Card temp = arr[top];
         arr[top--].~Card();
+        
+        return temp;
     }
     
     // return the top card
     Card getTopCard() {
         if (isEmpty()) throw "Stack is empty";
         return arr[top];
+    }
+    
+    // return the first card
+    Card getFirstCard() {
+        if (isEmpty()) throw "Stack is empty";
+        return arr[0];
     }
     
     // doubling the capacity of stack
@@ -125,6 +134,9 @@ public:
 
 class Solitaire {
 private:
+    
+    int gameNum = 1; // Order of game (1, 2)
+    
     // below are defined stock, waste, plays, and outputs
     CardPile *stock = new CardPile(), *waste = new CardPile();
     CardPile *play1 = new CardPile(), *play2 = new CardPile(), *play3 = new CardPile(), *play4 = new CardPile(), *play5 = new CardPile(), *play6 = new CardPile(), *play7 = new CardPile();
@@ -136,7 +148,7 @@ private:
     bool isDone = false; // check if the game cannot proceed anymore
 public:
     Solitaire() {}; // constructor
-    ~Solitaire() {}; // destructor
+    ~Solitaire() { }; // destructor
     
     //function for generating an initial card sets
     Card* generate52Cards() {
@@ -160,16 +172,19 @@ public:
     
     // shuffle card order using srand
     void shuffle(Card card[], int cardNum) {
-        srand(time(NULL));
+        srand((unsigned int) time(NULL)+gameNum*100); // seeding random number without being the same for each game #
         
         for (int i = cardNum-1; i > 0; i--) {
             int j = rand() % (i + 1);
-            swapCard(&card[i], &card[j]);
+            swapCard(&card[i], &card[j]); // swapping cards randomly with the random seeds assigned
         }
     }
     
     // initialize the game
-    void initialize() {
+    void initialize(int order) {
+        
+        gameNum = order; // set game #
+        
         Card *a;
         a = generate52Cards(); //generate cards
         
@@ -201,7 +216,7 @@ public:
             else if (to->getCardNum() == 0) {
                 return std::make_tuple(false, 0); // else if destination is empty, return false
             }
-            return std::make_tuple(from->getArray()[from->getCardNum()-1].getNumber() + 1 == to->getTopCard().getNumber() && from->getArray()[from->getCardNum()-1].isBlack() != to->getTopCard().isBlack(), 1); // else, check if a card can move
+            return std::make_tuple(from->getTopCard().getNumber() + 1 == to->getTopCard().getNumber() && from->getTopCard().isBlack() != to->getTopCard().isBlack(), 1); // else, check if a card can move
         } else {
             Card* possibles = std::get<0>(from->checkConsecutives()); // check the possible card sets
             int possibleNum = std::get<1>(from->checkConsecutives()); // check the possible number of cards
@@ -210,7 +225,7 @@ public:
                 return std::make_tuple(false, 0); // if origin is empty, return false
             }
             else if (to->getCardNum() == 0 && possibles[possibleNum-1].getNumber() == 13) {
-                if (from->getArray()[0].getNumber() == 13 && from->getArray()[0].isRevealed()) return std::make_tuple(false, 0); // if destination is empty and the head of available cards is 13, return true
+                if (from->getFirstCard().getNumber() == 13 && from->getFirstCard().isRevealed()) return std::make_tuple(false, 0); // if destination is empty and the head of available cards is 13, return true
                 return std::make_tuple(true, possibleNum);
             }
             else if (to->getCardNum() == 0) {
@@ -242,10 +257,14 @@ public:
     
     // function to move the number {{ cardNum }} of card(s) to another pile
     void move(CardPile* from, CardPile* to, int cardNum) {
-        for (int i = from->getCardNum()-cardNum; i < from->getCardNum(); i++) {
-            to->push(from->getArray()[i]);
+        Card* tempArr = new Card[cardNum];
+        for (int i = 0; i < cardNum; i++) {
+            tempArr[i] = from->pop();
+            from->revealLast();
         }
-        from->removeCards(cardNum);
+        for (int j = cardNum-1; j >= 0; j--) {
+            to->push(tempArr[j]);
+        }
     }
     
     // return the current point of game
@@ -265,7 +284,7 @@ public:
     
     // a function to print all the piles
     void printPiles() {
-        cout << "===========================" << endl << endl << "[Initial card sets]" << endl << endl;
+        cout << "Game " << gameNum << endl << endl <<"===========================" << endl << endl << "[Initial card sets]" << endl << endl;
         for (int i=0; i<7; i++) {
             cout << "Playing #" << i+1 << ": ";
             printPile(plays[i]);
@@ -347,7 +366,7 @@ public:
                           std::get<0>(plays[i]->checkConsecutives())[std::get<1>(plays[i]->checkConsecutives())-1].isBlack() == std::get<0>(plays[j]->checkConsecutives())[std::get<1>(plays[j]->checkConsecutives())-1].isBlack())) {
                         // print cards to move
                         for (int a = plays[i]->getCardNum()-1; a >= plays[i]->getCardNum()-std::get<1>(checkMobility(plays[i], plays[j], false)); a--) {
-                            printCard(plays[i]->getArray()[a]);
+                            printCard(plays[i]->getArrayForPrint()[a]);
                             cout << " ";
                         }
                         
@@ -374,7 +393,7 @@ public:
                 cout << " from Stock to Waste" << endl;
                 move(stock, waste, 1);
             } else {
-                cout << endl << "===========================" << endl << endl << "[End of game]" << endl << endl << "Point: " << getPoint() << endl << endl << "===========================" << endl;
+                cout << endl << "===========================" << endl << endl << "[End of game]" << endl << endl << "Point: " << getPoint() << endl << endl << "===========================" << endl << endl;
                 isDone = true;
             }
         }
@@ -397,7 +416,7 @@ public:
     // print a pile of cards
     void printPile(CardPile* pile) {
         for (int i = 0; i < pile->getCardNum(); i++) {
-            printCard(pile->getArray()[i]);
+            printCard(pile->getArrayForPrint()[i]);
             cout << " ";
         }
         cout << endl;
@@ -410,17 +429,28 @@ int main(int argc, const char * argv[]) {
     streambuf *buffer = cout.rdbuf(); // save previous buffer
     cout.rdbuf(result.rdbuf()); // cout -> result.txt
     
-    Solitaire solitaire = Solitaire(); // initialize Solitaire class
-
+    // Game #1
+    Solitaire solitaire1 = Solitaire(); // initialize Solitaire class
+    solitaire1.initialize(1); // call initialize() function in the class
+    solitaire1.printPiles(); // first, print the initial card sets
     
-    solitaire.initialize(); // call initialize() function in the class
-    solitaire.printPiles(); // first, print the initial card sets
-    
-    while (!solitaire.shouldBeTerminated()) {
-        solitaire.cycle(); // while the solitare should not be terminated so far, keep running the cycle
+    while (!solitaire1.shouldBeTerminated()) {
+        solitaire1.cycle(); // while the solitare should not be terminated so far, keep running the cycle
     }
+    solitaire1.~Solitaire();
     
-    result.close();
+    // Game #2
+    Solitaire solitaire2 = Solitaire(); // initialize Solitaire class
+    solitaire2.initialize(2); // call initialize() function in the class
+    solitaire2.printPiles(); // first, print the initial card sets
+    
+    while (!solitaire2.shouldBeTerminated()) {
+        solitaire2.cycle(); // while the solitare should not be terminated so far, keep running the cycle
+    }
+    solitaire2.~Solitaire();
+    
+    
+    result.close(); // close ofstream
     
     return 0;
 }
