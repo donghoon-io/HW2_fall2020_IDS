@@ -54,7 +54,7 @@ public:
     ~CardPile() {};
     
     bool isEmpty() { return (top == -1); } // get if the pile is empty
-    Card* getArray() { return arr; } // function of getting the array of card
+    Card* getArrayForPrint() { return arr; } // function of getting the array of card. THIS IS ONLY FOR PRINTING CARD DECK
     int getCardNum() { return top + 1; } // return the number (of cards)
     
     // push card
@@ -67,15 +67,24 @@ public:
     }
     
     // pop card
-    void pop() {
+    Card pop() {
         if (isEmpty()) throw "Stack is empty";
+        Card temp = arr[top];
         arr[top--].~Card();
+        
+        return temp;
     }
     
     // return the top card
     Card getTopCard() {
         if (isEmpty()) throw "Stack is empty";
         return arr[top];
+    }
+    
+    // return the first card
+    Card getFirstCard() {
+        if (isEmpty()) throw "Stack is empty";
+        return arr[0];
     }
     
     // doubling the capacity of stack
@@ -207,7 +216,7 @@ public:
             else if (to->getCardNum() == 0) {
                 return std::make_tuple(false, 0); // else if destination is empty, return false
             }
-            return std::make_tuple(from->getArray()[from->getCardNum()-1].getNumber() + 1 == to->getTopCard().getNumber() && from->getArray()[from->getCardNum()-1].isBlack() != to->getTopCard().isBlack(), 1); // else, check if a card can move
+            return std::make_tuple(from->getTopCard().getNumber() + 1 == to->getTopCard().getNumber() && from->getTopCard().isBlack() != to->getTopCard().isBlack(), 1); // else, check if a card can move
         } else {
             Card* possibles = std::get<0>(from->checkConsecutives()); // check the possible card sets
             int possibleNum = std::get<1>(from->checkConsecutives()); // check the possible number of cards
@@ -216,7 +225,7 @@ public:
                 return std::make_tuple(false, 0); // if origin is empty, return false
             }
             else if (to->getCardNum() == 0 && possibles[possibleNum-1].getNumber() == 13) {
-                if (from->getArray()[0].getNumber() == 13 && from->getArray()[0].isRevealed()) return std::make_tuple(false, 0); // if destination is empty and the head of available cards is 13, return true
+                if (from->getFirstCard().getNumber() == 13 && from->getFirstCard().isRevealed()) return std::make_tuple(false, 0); // if destination is empty and the head of available cards is 13, return true
                 return std::make_tuple(true, possibleNum);
             }
             else if (to->getCardNum() == 0) {
@@ -248,10 +257,14 @@ public:
     
     // function to move the number {{ cardNum }} of card(s) to another pile
     void move(CardPile* from, CardPile* to, int cardNum) {
-        for (int i = from->getCardNum()-cardNum; i < from->getCardNum(); i++) {
-            to->push(from->getArray()[i]);
+        Card* tempArr = new Card[cardNum];
+        for (int i = 0; i < cardNum; i++) {
+            tempArr[i] = from->pop();
+            from->revealLast();
         }
-        from->removeCards(cardNum);
+        for (int j = cardNum-1; j >= 0; j--) {
+            to->push(tempArr[j]);
+        }
     }
     
     // return the current point of game
@@ -353,7 +366,7 @@ public:
                           std::get<0>(plays[i]->checkConsecutives())[std::get<1>(plays[i]->checkConsecutives())-1].isBlack() == std::get<0>(plays[j]->checkConsecutives())[std::get<1>(plays[j]->checkConsecutives())-1].isBlack())) {
                         // print cards to move
                         for (int a = plays[i]->getCardNum()-1; a >= plays[i]->getCardNum()-std::get<1>(checkMobility(plays[i], plays[j], false)); a--) {
-                            printCard(plays[i]->getArray()[a]);
+                            printCard(plays[i]->getArrayForPrint()[a]);
                             cout << " ";
                         }
                         
@@ -403,7 +416,7 @@ public:
     // print a pile of cards
     void printPile(CardPile* pile) {
         for (int i = 0; i < pile->getCardNum(); i++) {
-            printCard(pile->getArray()[i]);
+            printCard(pile->getArrayForPrint()[i]);
             cout << " ";
         }
         cout << endl;
